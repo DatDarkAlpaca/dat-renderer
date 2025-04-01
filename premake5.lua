@@ -3,14 +3,14 @@ require "scripts/project"
 require "scripts/platform"
 require "vendor/dependencies"
 
-workspace "template-workspace"
+workspace "dat-renderer"
     architecture "x64"
     configurations {
         "Debug",
         "Release"
     }
 
-    startproject "template-project"
+    startproject "dat-renderer"
 
     flags {
 		"MultiProcessorCompile"
@@ -21,15 +21,12 @@ binaries_path       = "%{wks.location}/build/bin/" .. "%{output_path}"
 intermediate_path   = "%{wks.location}/build/intermediate/" .. "%{output_path}"
 vendor_path         = "%{wks.location}/vendor/"
 
-
 group "dependencies"
 	include "vendor/glfw.lua"
     include "vendor/glad.lua"
     include "vendor/imgui.lua"
-    include "vendor/vma.lua"
 	include "vendor/imgui-glfw.lua"
     include "vendor/imgui-opengl.lua"
-	include "vendor/imgui-vulkan.lua"
 group ""
 
-include "template/build.lua"
+include "dat-renderer/renderer.lua"

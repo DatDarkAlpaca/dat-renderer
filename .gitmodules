@@ -23,9 +23,3 @@
 	path = vendor/imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
-[submodule "vendor/vma"]
-	path = vendor/vma
-	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-[submodule "vendor/Vulkan-Headers"]
-	path = vendor/Vulkan-Headers
-	url = https://github.com/KhronosGroup/Vulkan-Headers
