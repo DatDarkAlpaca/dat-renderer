@@ -10,6 +10,7 @@
 .vs/
 *.sln
 *.vcxproj
+*.filters
 
 # Log files:
 *.log

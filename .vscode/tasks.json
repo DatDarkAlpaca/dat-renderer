@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "generate",
+            "type": "shell",
+            "command": "premake5 vs2022",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile",
+        }
+    ]
+}

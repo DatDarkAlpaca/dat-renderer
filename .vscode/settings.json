@@ -1,5 +1,14 @@
 {
     "cmake.ignoreCMakeListsMissing": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/*.vcxproj": true,
+        "**/*.filters": true
+    },
     "files.associations": {
         "array": "cpp",
         "ranges": "cpp",

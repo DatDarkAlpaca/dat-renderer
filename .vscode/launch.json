@@ -10,7 +10,8 @@
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}/dat-renderer",
             "environment": [],
-            "console": "externalTerminal"
+            "console": "externalTerminal",
+            "preLaunchTask": "build"
         }
     ]
 }
