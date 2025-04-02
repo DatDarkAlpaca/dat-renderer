@@ -44,7 +44,9 @@ struct renderer_data
     u32 VAO = invalid_handle;
     u32 VBO = invalid_handle;
     u32 EBO = invalid_handle;
+    
     u32 textureArray = invalid_handle;
+    u32 textureCount = 0;
 
     u32 DBO = invalid_handle;
     u32 instanceVBO = invalid_handle;
@@ -59,7 +61,11 @@ void renderer_initialize(renderer_data& renderer, const renderer_arguments& argu
 
 void renderer_begin(renderer_data& renderer);
 
+void renderer_draw(renderer_data &renderer);
+
 void renderer_add_quad(renderer_data& renderer, const transform& transform, int textureID = 0);
+
+void renderer_add_texture(renderer_data& renderer, const void* data);
 
 void renderer_set_camera(renderer_data& renderer, const glm::mat4& view = glm::mat4(1.0f), const glm::mat4& projection = glm::mat4(1.0f));
 

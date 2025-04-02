@@ -4,6 +4,11 @@
 #include "utils/texture_loader.hpp"
 #include "utils/file.hpp"
 
+static constexpr u8 DefaultTexture[] = {
+    180, 050, 050, 255,         200, 200, 200, 255,
+    200, 200, 200, 255,         180, 050, 050, 255,
+};
+
 static inline void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
 {
         auto const src_str = [source]() {
@@ -108,33 +113,17 @@ void renderer_initialize(renderer_data& renderer, const renderer_arguments& argu
     // Texture array:
     {
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &renderer.textureArray);
-        glTextureStorage3D(renderer.textureArray, 1, GL_RGBA8, arguments.textureWidth, arguments.textureHeight, arguments.textureCount);
+
+        u32 texCount = std::max<u32>(1, arguments.textureCount);
+        glTextureStorage3D(renderer.textureArray, 1, GL_RGBA8, arguments.textureWidth, arguments.textureHeight, texCount);
     
         glTextureParameteri(renderer.textureArray, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTextureParameteri(renderer.textureArray, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTextureParameteri(renderer.textureArray, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(renderer.textureArray, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        u8 pixels[] = {
-            180, 050, 050, 255,         200, 200, 200, 255,
-            200, 200, 200, 255,         180, 050, 050, 255,
-        };
-
-        glTextureSubImage3D(
-            renderer.textureArray, 0, 0, 0, 0, 
-            arguments.textureWidth, arguments.textureHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels
-        );
-
-        // Another default:
-        u8 pixels1[] = {
-            100, 100, 100, 255,         200, 200, 200, 255,
-            200, 200, 200, 255,         100, 100, 100, 255,
-        };
-
-        glTextureSubImage3D(
-            renderer.textureArray, 0, 0, 0, 1, 
-            arguments.textureWidth, arguments.textureHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels1
-        );
+        // Default texture:
+        renderer_add_texture(renderer, DefaultTexture);
     }
 
     // Draw Buffer:
@@ -230,6 +219,10 @@ void renderer_begin(renderer_data &renderer)
     glBindTextureUnit(0, renderer.textureArray);
     glBindVertexArray(renderer.VAO);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderer.DBO);
+}
+
+void renderer_draw(renderer_data &renderer)
+{
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, 1, 0);
 }
 
@@ -237,7 +230,7 @@ void renderer_add_quad(renderer_data &renderer, const transform &transform, int 
 {
     instance_data data;
     data.transform = transform.get_transform();
-    data.textureID = textureID;
+    data.textureID = std::clamp<u32>(textureID, 0, renderer.textureCount - 1);
 
     glNamedBufferSubData(renderer.instanceVBO, renderer.instanceCount * sizeof(instance_data), sizeof(instance_data), &data);
     ++renderer.instanceCount;
@@ -247,6 +240,16 @@ void renderer_add_quad(renderer_data &renderer, const transform &transform, int 
     drawCommand.instanceCount = renderer.instanceCount;
 
     glNamedBufferSubData(renderer.DBO, 0, sizeof(renderer_draw_command), &drawCommand);
+}
+
+void renderer_add_texture(renderer_data &renderer, const void *data)
+{
+    glTextureSubImage3D(
+        renderer.textureArray, 0, 0, 0, renderer.textureCount, 
+        renderer.arguments.textureWidth, renderer.arguments.textureHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, data
+    );
+
+    ++renderer.textureCount;
 }
 
 void renderer_set_camera(renderer_data &renderer, const glm::mat4 &view, const glm::mat4 &projection)

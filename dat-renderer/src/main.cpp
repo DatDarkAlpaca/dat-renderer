@@ -5,8 +5,9 @@
 
 struct application_data
 {
-    GLFWwindow* window = nullptr;
     renderer_data renderer;
+    GLFWwindow* window = nullptr;
+    u32 windowWidth = 0, windowHeight = 0;
 };
 
 static void initialize_window(application_data& data)
@@ -23,7 +24,7 @@ static void initialize_window(application_data& data)
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
 
-    data.window = glfwCreateWindow(600, 480, "Dat Renderer", nullptr, nullptr);
+    data.window = glfwCreateWindow(data.windowWidth, data.windowHeight, "Dat Renderer", nullptr, nullptr);
     if (!data.window)
         throw;
 
@@ -33,45 +34,77 @@ static void initialize_window(application_data& data)
         throw;
 }
 
-static void initialize_renderer(application_data& data) {
-    renderer_arguments arguments;
-    {
-        arguments.vertexFilepath    = "res/quad.vert";
-        arguments.fragmentFilepath  = "res/quad.frag";
-        arguments.maxInstanceCount  = 100;
-        arguments.textureCount      = 2;
-        arguments.textureWidth      = 2;
-        arguments.textureHeight     = 2;
-    }
+static void initialize_renderer(application_data& data, renderer_arguments arguments) 
+{
     renderer_initialize(data.renderer, arguments);
+
+    // Second texture:
+    static constexpr u8 secondTexture[] = {
+        060, 050, 050, 255,          90, 200,  90, 255,
+         90, 200,  90, 255,          60, 050, 050, 255,
+    };
+    renderer_add_texture(data.renderer, secondTexture);
 
     // Camera:
     auto view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    auto projection = glm::ortho(0.0f, 600.0f, 480.0f, 0.0f);
+    auto projection = glm::ortho(0.0f, (float)data.windowWidth, (float)data.windowHeight, 0.0f);
     renderer_set_camera(data.renderer, view, projection);
+}
 
-    // Quad 0:
-    transform transform = {};
-    transform.position = glm::vec3(50.f, 50.f, 1.0f);
-    transform.scale = glm::vec3(50.0f, 50.0f, 1.f);
-    renderer_add_quad(data.renderer, transform);
+static void initialize_scene(application_data& data)
+{  
+    constexpr u32 quadAmountX = 120;
+    constexpr u32 quadAmountY = 120;
+
+    float width  = (float)data.windowWidth / (float)quadAmountX;
+    float height = width;
+
+    for(u32 x = 0; x < quadAmountX; ++x)
+    {
+        for(u32 y = 0; y < quadAmountY; ++y)
+        {
+            transform transform = {};
+            transform.position = glm::vec3(width / 2.0f + x * width, height / 2.0f + y * height, 0.0f);
+            transform.scale = glm::vec3(width, height, 1.f);
     
-    // Quad 1:
-    transform.position = glm::vec3(100.f, 200.f, 0.f);
-    transform.scale = glm::vec3(50.0f, 50.0f, 1.f);
-    renderer_add_quad(data.renderer, transform, 1);
+            renderer_add_quad(data.renderer, transform, std::rand() % (1 + 1 - 0) + 0);
+        }
+    }
 }
 
 static void update(application_data& data)
 {
     renderer_begin(data.renderer);
+
+    renderer_draw(data.renderer);
+
+    renderer_end(data.renderer);
 }
 
 int main()
 {
+    std::srand(static_cast<u32>(std::time(nullptr)));
+
     application_data appData;
+    {
+        appData.windowWidth = 1280;
+        appData.windowHeight = 920;
+    }
+
     initialize_window(appData);
-    initialize_renderer(appData);
+
+    renderer_arguments arguments;
+    {
+        arguments.vertexFilepath    = "res/quad.vert";
+        arguments.fragmentFilepath  = "res/quad.frag";
+        arguments.maxInstanceCount  = 120 * 120;
+        arguments.textureCount      = 2;
+        arguments.textureWidth      = 2;
+        arguments.textureHeight     = 2;
+    }
+    initialize_renderer(appData, arguments);
+
+    initialize_scene(appData);
 
     while(!glfwWindowShouldClose(appData.window))
     {
