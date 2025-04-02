@@ -67,7 +67,10 @@ static void initialize_scene(application_data& data)
             transform.position = glm::vec3(width / 2.0f + x * width, height / 2.0f + y * height, 0.0f);
             transform.scale = glm::vec3(width, height, 1.f);
     
-            renderer_add_quad(data.renderer, transform, std::rand() % (1 + 1 - 0) + 0);
+            quad_data quadData = {};
+            quadData.transform = transform.get_transform();
+            quadData.textureID = std::rand() % (1 + 1 - 0) + 0;
+            renderer_add_quad(data.renderer, quadData);
         }
     }
 }
