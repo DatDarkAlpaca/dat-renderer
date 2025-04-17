@@ -8,6 +8,7 @@
 
 # Visual studio file:
 .vs/
+.vscode/
 *.sln
 *.vcxproj
 *.filters
